@@ -74,6 +74,7 @@ component {
   	@param testPackage	CF mapping to root package containing tests
 		@returns			      True if no failures or errors occurred.
 	 **/
+  // this function is not uses.. see /wheels/rocketunit/wheels.cfm ($WheelsRunner)
   public boolean function runTestPackage(string testPackage) {
     var packageDirectory = "/#replace(testPackage, ".", "/", ALL)#";
     var packageStartOffset = len(expandPath(packageDirectory)) + 1;
@@ -84,14 +85,9 @@ component {
 
     setupResults();
 
-    directory action="list"
-              directory="#packageDirectory#"
-              name="qDirectoryListing"
-              recurse="true"
-              filter="*.cfc"
-              type="file";
+    qDirectoryListing = directoryList(packageDirectory, true, "query", "#arguments.filter#.cfc", "file");
 
-    each(qDirectoryListing, function(file) {
+    queryEach(qDirectoryListing, function(file) {
       if (not listContainsNoCase("Application.cfc,Test.cfc", file.name)) {
         componentName = testPackage
                         & replace(mid(file.directory,
@@ -135,30 +131,32 @@ component {
     var results = setupResults(); // totals for all test cases
 
     // If there are no functions, it doesn't create key at all...
-    if (not structKeyExists(metadata, "functions")) {
+    if (!structKeyExists(metadata, "functions")) {
       metadata.functions = [];
     }
 
-    metadata.functions.map(function(fn){
-
+    var functions = [];
+    arrayEach(metadata.functions, function(fn) {
       // get test function names
-      if (fn.name eq SETUP_FN_NAME)
+      if (fn.name eq SETUP_FN_NAME){
         hasSetup = true;
-      else if (fn.name eq TEARDOWN_FN_NAME)
+      } else if (fn.name eq TEARDOWN_FN_NAME){
         hasTeardown = true;
-      return fn.name;
+      }
+      arrayAppend(functions, fn.name);
+    });
 
-    }).filter(function(testName) {
-
-      // filter out functions without test prefix
+    // filter out functions without test prefix
+    functions = arrayFilter(functions, function(testName) {
       return left(testName, 4) eq TEST_PREFIX;
+    });
 
-    }).filter(function(testName) {
-
-      // run a specific test (hacked for cfwheels)
+    // run a specific test, maybe this should be an argument
+    functions = arrayFilter(functions, function(testName) {
       return isNull(url.test) or testName eq url.test;
+    });
 
-    }).each(function (testName) {
+    arrayEach(functions, function(testName) {
 
       // count another test
       numTests++;
@@ -170,17 +168,18 @@ component {
         message = "";
         if (hasSetup) invoke(this, SETUP_FN_NAME);
         time = getTickCount();
+
         invoke(this, testName);
         time = getTickCount() - time;
         status = SUCCESS_STATUS;
         results.numSuccesses++;
 
-      } catch (any) {
+      } catch (any e) {
 
         time = getTickCount() - time;
-        message = cfcatch.message;
+        message = e.message;
 
-        if (cfcatch.errorcode eq FAIL_ERRCODE) {
+        if (e.errorcode eq FAIL_ERRCODE) {
 
           // A fail or assert
           status = FAIL_STATUS;
@@ -191,14 +190,10 @@ component {
         } else {
           // general exception
           status = ERR_STATUS;
-          message &= cfcatch.detail & NEWLINE
-          for (context in cfcatch.tagContext) {
-            message &= NEWLINE
-                    & context.template
-                    & " line "
-                    & context.line
+          message &= e.detail & NEWLINE;
+          for (context in e.tagContext) {
+            message &= NEWLINE & context.template & " line " & context.line;
           };
-
           results.ok = false;
           numTestErrors++;
           results.numErrors++;
@@ -206,10 +201,12 @@ component {
       }
 
       // ALWAYS run teardown()
-      if (hasTeardown) invoke(this, TEARDOWN_FN_NAME);
+      if (hasTeardown){
+        invoke(this, TEARDOWN_FN_NAME);
+      }
 
       // Results for this test
-      results.tests.append({
+      arrayAppend(results.tests, {
         testCase = testCase,
         testName = testName,
         time = time,
@@ -217,11 +214,11 @@ component {
         message = message
       });
 
-    }) // each testName
+    }); // each testName
 
 
     // Summary results for the test case
-    results.cases.append({
+    arrayAppend(results.cases, {
       testCase = testCase,
       numTests = numTests,
       numFailures = numTestFailures,
@@ -276,26 +273,34 @@ component {
     var message = "";         // Message string for a failed assert
     var evaluatedTokens = {}; // Record parts of expression source we have already eval'ed
     var match = {pos:[]};     // RE search result structure
+    var tokens = [];
 
-    if (not expression) {
+    if (!expression){
 
       // Locate and parse the expression source code
       // TODO: Test across other CFML engines, probably Lucee 4.5 / Railo 4.2 specific
       try {
         throw(errorCode=DUMMY_ERRCODE);
-      } catch(any) {
+      } catch(any e) {
         // assert is one stack frame up from this function [1], therefore [2]
-        source = cfcatch.tagContext[2].codePrintPlain;
-        startLineNumber = lineNumber = cfcatch.tagContext[2].line;
+        // codePrintPlain is only present in Lucee
+        if (structKeyExists(e.tagContext[2], "codePrintPlain")) {
+          source = e.tagContext[2].codePrintPlain;
+        } else {
+          source = ""; // something useful here would be nice
+        }
+        startLineNumber = lineNumber = e.tagContext[2].line;
       }
 
       if (lineNumber eq 0) {
         message ="assert failed: could not locate line number of assert";
       } else {
-        while (arrayLen(match.pos) neq 2 and startLineNumber gt 0)
-          match = refind("#startLineNumber--#:[\s]+assert\((.+?)\);", source, 1, true);
 
-        if (match.pos.len() neq 2) {
+        while (arrayLen(match.pos) neq 2 and startLineNumber gt 0) {
+          match = refind("#startLineNumber--#:[\s]+assert\((.+?)\);", source, 1, true);
+        }
+
+        if (arrayLen(match.pos) neq 2) {
           message = "assert failed: could not locate entire source of assert expression "
                   & "ending on line #lineNumber#. Usually this is because the expression is "
                   & "spread over too many lines: #htmlCodeFormat(wrap(source, WRAP_WIDTH))#";
@@ -309,21 +314,22 @@ component {
       }
 
       // Default failure message prefix
-      if (message eq "")
+      if (message eq ""){
         message = "assert failed: #htmlCodeFormat(wrap(source, WRAP_WIDTH))#";
+      }
 
       // Double pass of expressions with different delimiters so that for expression "a(b) or c[d]",
       // "a(b)", "c[d]", "b" and "d" are evaluated.
       // TODO: Treat string literals as single token so that we don't treat contents as tokens
-      "#expression# #reReplace(expression, "[([\])]", " ")#".listToArray(" +=-*/%##").each(
-        function(token) {
+      tokens = listToArray("#expression# #reReplace(expression, '[([\])]', ' ')#", " +=-*/%##");
+      arrayEach(tokens, function(token) {
           var tokenValue = INVALID_TOKEN_VALUE;
 
-          if (not structKeyExists(evaluatedTokens, token)) {
+          if (! structKeyExists(evaluatedTokens, token)) {
             evaluatedTokens[token] = true;
 
             // If it's not a simple value try to evaluate
-            if (not (isNumeric(token)
+            if (! (isNumeric(token)
                   or isBoolean(token)
                   or left(token, 1) eq '"'
                   or left(token, 1) eq "'")) {
@@ -340,7 +346,7 @@ component {
                              & "in a variable before the assert and use the "
                              & "variable in its place.";
                 }
-              } catch(expression) {
+              } catch(expression e) {
                 // Already INVALID_TOKEN_VALUE
               }
 
@@ -357,8 +363,7 @@ component {
                   tokenValue = "struct with #structCount(tokenValue)# keys";
                 }
 
-                message = message & NEWLINE
-                          & htmlCodeFormat("#token# = #tokenValue#");
+                message = message & NEWLINE & htmlCodeFormat("#token# = #tokenValue#");
 
               } // not invalid tokenValue
             } // not a simple token
@@ -373,84 +378,91 @@ component {
   /**
     HTMLFormatTestResults
    **/
-  public string function HTMLFormatTestResults(struct results, string id="results") {
-    return tag("div", {id=id}, [
-      tag("table", {class="pure-table pure-table-horizontal"}, [
-        tag("thead", [
-          tag("tr", ["Status", "Begin", "End", "Cases", "Tests", "Failures", "Errors"].map(
-            function(title) {return tag("th", [title])})
-          )
-        ]),
-        tag("tbody", [
-          tag("tr", [
-            tag("td", [function() {
-                         if (results.ok)
-                           return "Passed";
-                         else
-                           return "Failed";
-            }]),
-            tag("td", [timeFormat(results.begin, "HH:mm:ss L")]),
-            tag("td", [timeFormat(results.end, "HH:mm:ss L")]),
-            tag("td", {align="right"}, [results.numCases]),
-            tag("td", {align="right"}, [results.numTests]),
-            tag("td", {align="right"}, [results.numFailures]),
-            tag("td", {align="right"}, [results.numErrors])
-          ])
-        ])
-      ]),
-      tag("br"),
-      tag("table", {class="pure-table pure-table-horizontal"}, [
-        tag("thead", [
-          tag("tr", ["Test Case", "Tests", "Failures", "Errors"].map(
-            function(title) {return tag("th", [title])})
-          )
-        ]),
-        tag("tbody",
-          results.cases.map(function(case) {
-            if (case.numTests gt 0) {
-              return tag("tr", [
-                tag("td", [case.testCase]),
-                tag("td", {align="right"}, [case.numTests]),
-                tag("td", {align="right"}, [case.numFailures]),
-                tag("td", {align="right"}, [case.numErrors])
-              ])
-            } else {
-              return "";
-            }
-          })
-        )
-      ]),
-      tag("br"),
-      tag("table", {class="pure-table pure-table-horizontal"}, [
-        function() {
-          if (results.tests.filter(function(test) {return test.status neq SUCCESS_STATUS}).len() gt 0) {
-            return tag("thead",
-              tag("tr", ["Test Case", "Test Name", "Time", "Status", "Message"].map(
-                function(title) {return tag("th", [title])})
-               )
-            )
-          } else {
-            return "";
-          }
-        },
-        tag("tbody", results.tests.map(function(test) {
-          if (test.status neq SUCCESS_STATUS) {
-            return tag("tr", {valign="top"}, [
-              tag("td", [listLast(test.testCase, ".")]),
-              tag("td", [test.testName]),
-              tag("td", [test.time]),
-              tag("td", [test.status]),
-              tag("td", [test.message])
-            ])
-          } else {
-            return "";
-          }
-        })
-        )
-      ])
-    ]);
-  }
+   public string function HTMLFormatTestResults(struct results, string id="results") {
+     return tag("div", {id=id}, [
+       tag("table", {class="pure-table pure-table-horizontal"}, [
+         tag("thead", [
+           tag("tr", arrayMap(["Status", "Begin", "End", "Cases", "Tests", "Failures", "Errors"],
+             function(title) {
+               return tag("th", [title]);
+             })
+           )
+         ]),
+         tag("tbody", [
+           tag("tr", [
+             tag("td", [function() {
+               if (results.ok) {
+                 return "Passed";
+               } else {
+                 return "Failed";
+               }
+             }]),
+             tag("td", [timeFormat(results.begin, "HH:mm:ss L")]),
+             tag("td", [timeFormat(results.end, "HH:mm:ss L")]),
+             tag("td", {align="right"}, [results.numCases]),
+             tag("td", {align="right"}, [results.numTests]),
+             tag("td", {align="right"}, [results.numFailures]),
+             tag("td", {align="right"}, [results.numErrors])
+           ])
+         ])
+       ]),
+       tag("br"),
+       tag("table", {class="pure-table pure-table-horizontal"}, [
+         tag("thead", [
+           tag("tr", arrayMap(["Test Case", "Tests", "Failures", "Errors"],
+             function(title) {
+               return tag("th", [title]);
+             })
+           )
+         ]),
 
+         tag("tbody", arrayMap(results.cases,
+           function(case_) {
+             if (case_.numTests gt 0) {
+               return tag("tr", [
+                 tag("td", [case_.testCase]),
+                 tag("td", {align="right"}, [case_.numTests]),
+                 tag("td", {align="right"}, [case_.numFailures]),
+                 tag("td", {align="right"}, [case_.numErrors])
+               ]);
+             } else {
+               return "";
+             }
+           }
+         ))
+       ]),
+
+       tag("br"),
+       tag("table", {class="pure-table pure-table-horizontal"}, [
+         function() {
+           if (arrayLen(arrayFilter(results.tests, function(test) {return test.status neq SUCCESS_STATUS;})) gt 0) {
+             return tag("thead",
+               tag("tr", arrayMap(["Test Case", "Test Name", "Time", "Status", "Message"],
+                 function(title) {
+                   return tag("th", [title]);
+                 })
+                )
+             );
+           } else {
+             return "";
+           }
+         },
+         tag("tbody", arrayMap(results.tests, function(test) {
+           if (test.status neq SUCCESS_STATUS) {
+             return tag("tr", {valign="top"}, [
+               tag("td", [listLast(test.testCase, ".")]),
+               tag("td", [test.testName]),
+               tag("td", [test.time]),
+               tag("td", [test.status]),
+               tag("td", [test.message])
+             ]);
+           } else {
+             return "";
+           }
+         }))
+       ])
+     ]);
+   }
 
   /**
     JUnitFormatTestResults
@@ -460,10 +472,11 @@ component {
       '<?xml version="1.0" encoding="UTF-8"?>',
       tag("testsuites", [
         tag("testsuite", {
-          tests=results.numTests,
-          failures=results.numFailures,
-          errors=results.numErrors},
-          results.tests.map(function(test){
+            tests=results.numTests,
+            failures=results.numFailures,
+            errors=results.numErrors
+          },
+          arrayMap(results.tests, function(test){
             return tag("testcase", {
               classname=test.testCase,
               name=test.testName
@@ -479,13 +492,12 @@ component {
                 default:
                   return "";
               }
-            }])
+            }]);
           })  // results.tests.map
         )     // testSuite
       ])      // testSuites
     ], "");   // arrayToList
-  }
-
+  };
 
   /**
     onRequest()
@@ -521,25 +533,25 @@ component {
         titleStatus = TITLE_FAILED_STATUS;
       }
 
-    } catch (any) {
+    } catch (any e) {
       titleStatus = TITLE_EXCEPTION_STATUS;
-      body = tag("div", [cfcatch.message,
+      body = tag("div", [e.message,
                         "<br/><br/>",
-                        cfcatch.tagContext.map(function(context) {
+                        arrayMap(e.tagContext, function(context) {
         return [
           tag("hr"),
           tag("p", [context.template]),
           tag("pre", [context.codeprintHTML])
-        ]
+        ];
       })]);
     }
 
     if  (structKeyExists(url, JUNIT_URL_KEY)) {
-      content reset=true;
+      cfcontent(reset=true);
       writeOutput(JUnitFormatTestResults(results));
 
     } else {
-      content reset=true;
+      cfcontent(reset=true);
       writeOutput(tag("html", [
         tag("head", [
           tag("link", {
@@ -550,7 +562,7 @@ component {
             href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"}),
           function() {
             if (structKeyExists(url, REFRESH_URL_KEY)) {
-              return tag("meta", {"http-equiv"="refresh", content=7})
+              return tag("meta", {"http-equiv"="refresh", content=7});
             } else {
               return "";
             }
@@ -565,13 +577,13 @@ component {
                   class="pure-button pure-button-primary",
                   href=cgi.script_name}, [
                     tag("i", {class="fa fa-pause"}, [""])
-                ])
+                ]);
               } else {
                 return tag("a", {
                   class="pure-button",
                   href="#cgi.script_name#?#REFRESH_URL_KEY#"}, [
                     tag("i", {class="fa fa-play"}, [""])
-                ])
+                ]);
               }   // url.refresh
             }
           ]),     // div
@@ -609,15 +621,15 @@ component {
     TODO flatten -> writeOutput at last possible moment
    **/
   private string function tag(name = "p") {
-    var name = arguments[1];
-    var out = ["<#name#"];
+    var tagname = arguments[1];
+    var out = ["<#tagname#"];
     var attributes = {};
     var children = [];
 
-    if (arguments.len() gt 1) {
+    if (arrayLen(arguments) gt 1) {
      if (isStruct(arguments[2])) {
         attributes = arguments[2];
-        if (arguments.len() eq 3) {
+        if (arrayLen(arguments) eq 3) {
           children = arguments[3];
         }
       } else {
@@ -627,18 +639,18 @@ component {
 
     attributes = expand(attributes);
 
-    attributes.each(function(attribute) {
-        out.append(' #attribute.lCase()#="#attributes[attribute]#"');
-      });
+    arrayEach(attributes, function(attribute) {
+      arrayAppend(out, ' #attribute.lCase()#="#attributes[attribute]#"');
+    });
 
     children = flatten(expand(children));
 
-    if (children.len() gt 0) {
-      out.append(">"
+    if (arrayLen(children) gt 0) {
+      arrayAppend(out, ">"
         & arrayToList(children, "")
-        & "</#name#>");
+        & "</#tagname#>");
     } else {
-      out.append("/>");
+      arrayAppend(out, "/>");
     }
 
     return arrayToList(out, "");
@@ -656,10 +668,10 @@ component {
     var expanded = {};
 
     if (isArray(item)) {
-      return item.map(expand);
+      return arrayMap(item, expand);
 
     } else if (isStruct(item)) {
-      structKeyArray(item).each(function(key) {
+      arrayEach(structKeyArray(item), function(key) {
         expanded[key] = expand(item[key]);
       });
       return expanded;
@@ -668,8 +680,8 @@ component {
       try {
         expanded = item();
         return expanded;
-      } catch (any) {
-        return cfcatch.message & cfcatch.detail & cfcatch.extendedInfo;
+      } catch (any e) {
+        return e.message & e.detail & e.extendedInfo;
       }
     }
     return item;
@@ -685,18 +697,17 @@ component {
   private array function flatten(nested) {
     var flattened = [];
     var appender = function(elem) {
-      if  (isArray(elem))
-        elem.each(appender);
+      if (isArray(elem))
+        arrayEach(elem, appender);
       else
-        flattened.append(elem);
+        arrayAppend(flattened, elem);
     };
 
     appender(nested);
     return flattened;
   }
 
-
   // Functions to enable running RocketUnit from CFWheels
-  include template="wheels.cfm";
+  include "wheels.cfm";
 
 }

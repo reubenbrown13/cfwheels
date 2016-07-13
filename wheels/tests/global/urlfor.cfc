@@ -15,7 +15,7 @@
 		loc.r will return as /user/777/survey-templates/index (no .csv)
 		Could possibly be something with caching.
 	 --->
-	<cffunction name="test_format_properly_add_with_route">
+	<cffunction name="test_1_format_properly_add_with_route">
 		<cfscript>
 		application.wheels.URLRewriting = "On";
 		addRoute(name="user_2", pattern="user/[user_id]/[controller]/[action].[format]");
@@ -26,18 +26,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="test_issue_455">
-		<cfscript>
-		addRoute(name="user_2", pattern="user/[user_id]/[controller]/[action]");
-		$setNamedRoutePositions();
-		application.wheels.URLRewriting = "Off";
-		application.wheels.obfuscateUrls = true;
-		loc.r = urlFor(route="user_2", user_id="5559", controller="SurveyTemplates", action="index");
-		assert(loc.r contains "b24dae");
-		</cfscript>
-	</cffunction>
-
-	<cffunction name="test_links_are_properly_hyphenated">
+	<cffunction name="test_2_links_are_properly_hyphenated">
 	<cfscript>
 		application.wheels.URLRewriting = "On";
 		addRoute(name="user_2", pattern="user/[user_id]/[controller]/[action]");
@@ -48,7 +37,7 @@
 		</cfscript>
 	</cffunction>
 
-	<cffunction name="test_using_onlypath_correctly_detects_https">
+	<cffunction name="test_3_using_onlypath_correctly_detects_https">
 	<cfscript>
 		request.cgi.server_protocol = "";
 		request.cgi.server_port_secure = 1;
@@ -56,6 +45,17 @@
 		$setNamedRoutePositions();
 		loc.r = urlFor(route="user_2", user_id="888", controller="SurveyTemplates", action="index", format="csv", onlyPath=false);
 		assert(left(loc.r, 5) eq "https");
+		</cfscript>
+	</cffunction>
+
+	<cffunction name="test_4_issue_455_with_urlrewriting_off">
+		<cfscript>
+		addRoute(name="user_2", pattern="user/[user_id]/[controller]/[action]");
+		$setNamedRoutePositions();
+		application.wheels.URLRewriting = "Off";
+		application.wheels.obfuscateUrls = true;
+		loc.r = urlFor(route="user_2", user_id="5559", controller="SurveyTemplates", action="index");
+		assert(loc.r contains "b24dae");
 		</cfscript>
 	</cffunction>
 

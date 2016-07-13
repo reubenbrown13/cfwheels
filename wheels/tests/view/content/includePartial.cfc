@@ -44,14 +44,14 @@
 	</cffunction>
 
 	<!--- This test fails if run after any of the tests below.. Maybe something to do with polluted request scope? --->
-	<cffunction name="test_including_partial_with_object">
+	<cffunction name="test_0_including_partial_with_object">
 		<cfset userObject = model("user").findOne(order="firstName")>
 		<cfset request.wheelsTests.objectTestsPassed = false>
 		<cfsavecontent variable="result"><cfoutput>#loc.controller.includePartial(userObject)#</cfoutput></cfsavecontent>
 		<cfset assert(request.wheelsTests.objectTestsPassed IS true AND Trim(result) IS 'Chris')>
 	</cffunction>
 
-	<cffunction name="test_including_partial_with_query">
+	<cffunction name="test_1_including_partial_with_query">
 		<cfset usersQuery = model("user").findAll(order="firstName")>
 		<cfset request.partialTests.currentTotal = 0>
 		<cfset request.partialTests.thirdUserName = "">
@@ -59,7 +59,7 @@
 		<cfset assert(request.partialTests.currentTotal IS 15 AND request.partialTests.thirdUserName IS 'Per')>
 	</cffunction>
 
-	<cffunction name="test_including_partial_with_special_query_argument">
+	<cffunction name="test_2_including_partial_with_special_query_argument">
 		<cfset usersQuery = model("user").findAll(order="firstName")>
 		<cfset request.partialTests.currentTotal = 0>
 		<cfset request.partialTests.thirdUserName = "">
@@ -68,13 +68,13 @@
 		<cfset assert(request.partialTests.noQueryArg IS true AND request.partialTests.currentTotal IS 15 AND request.partialTests.thirdUserName IS 'Per')>
 	</cffunction>
 
-	<cffunction name="test_including_partial_with_normal_query_argument">
+	<cffunction name="test_3_including_partial_with_normal_query_argument">
 		<cfset usersQuery = model("user").findAll(order="firstName")>
 		<cfsavecontent variable="result"><cfoutput>#loc.controller.includePartial(partial="custom", customQuery=usersQuery)#</cfoutput></cfsavecontent>
 		<cfset assert(Trim(result) IS 'Per')>
 	</cffunction>
 
-	<cffunction name="test_including_partial_with_special_objects_argument">
+	<cffunction name="test_4_including_partial_with_special_objects_argument">
 		<cfset usersArray = model("user").findAll(order="firstName", returnAs="objects")>
 		<cfset request.partialTests.currentTotal = 0>
 		<cfset request.partialTests.thirdUserName = "">

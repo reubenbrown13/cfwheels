@@ -25,7 +25,7 @@
 		<cfscript>
 			loc.controller = controller("dummy", params);
 			request.cgi.http_accept = "text/xml";
-			assert(loc.controller.$requestContentType() == "xml");
+			assert(loc.controller.$requestContentType() eq "xml");
 		</cfscript>
 	</cffunction>
 

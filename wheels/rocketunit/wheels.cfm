@@ -1,4 +1,14 @@
 <cfscript>
+// variables that are used by the testing framework itself --->
+TESTING_FRAMEWORK_VARS = {};
+TESTING_FRAMEWORK_VARS.WHEELS_TESTS_BASE_COMPONENT_PATH  = "";
+TESTING_FRAMEWORK_VARS.ROOT_TEST_PATH = "";
+TESTING_FRAMEWORK_VARS.RUNNING_TEST = "";
+// used to hold debug information for display
+if (! StructKeyExists(request, "TESTING_FRAMEWORK_DEBUGGING")) {
+	request["TESTING_FRAMEWORK_DEBUGGING"] = {};
+}
+
 /*
  * Catches a raised error and returns the error type.
  * Great if you want to test that a certain exception will be raised.
@@ -6,12 +16,43 @@
  */
 public any function raised(required string expression) {
 	try {
-		Evaluate(arguments.expression)
+		Evaluate(arguments.expression);
 	} catch(any e) {
 		return Trim(e.type);
 	}
 	return "";
 }
+
+/*
+ * used to examine an expression. any overloaded arguments get passed to cfdump's argumentCollection
+ * (ported from RocketUnit 1 for backwards compatibility)
+
+ @param url.variable    The value to be debugged
+ @param url.display  		whether to display the debug call. false returns without outputting anything into the buffer. good when you want to leave the debug command in the test for later purposes, but don't want it to display
+ */
+/*
+public any function debug(required any variable, boolean display=true) {
+	var loc = {};
+	loc.args = {var=arguments.variable};
+
+	if (! arguments.display) {
+		return;
+	}
+
+	StructDelete(arguments, "variable");
+	StructDelete(arguments, "display");
+	StructAppend(loc.args, arguments, true);
+
+	savecontent variable="loc.dump" {
+		WriteOutput(dump(argumentCollection=loc.args));
+	}
+
+	if (! StructKeyExists(request["TESTING_FRAMEWORK_DEBUGGING"], TESTING_FRAMEWORK_VARS.RUNNING_TEST)) {
+		request["TESTING_FRAMEWORK_DEBUGGING"][TESTING_FRAMEWORK_VARS.RUNNING_TEST] = [];
+	}
+	ArrayAppend(request["TESTING_FRAMEWORK_DEBUGGING"][TESTING_FRAMEWORK_VARS.RUNNING_TEST], loc.dump)
+}
+*/
 
 public any function $WheelsRunner(struct options={}) {
 	var loc = {};
@@ -53,11 +94,12 @@ public boolean function $isValidTest(
 			return false;
 		}
   }
-  return true
+  return true;
 }
 
 /*
  * removes the base test directory from the test name to make them prettier and more readable
+ * TODO: value of TESTING_FRAMEWORK_VARS.WHEELS_TESTS_BASE_COMPONENT_PATH should be an argument so it can be passed in for testing
  */
 public string function $cleanTestCase(required string name) {
 	return ListChangeDelims(Replace(arguments.name, TESTING_FRAMEWORK_VARS.WHEELS_TESTS_BASE_COMPONENT_PATH, ""), ".", ".");
@@ -223,6 +265,6 @@ public any function $results(string resultKey="test") {
 }
 
 // include main wheels functions & plugins in tests by default
-include template="../global/functions.cfm";
-include template="../plugins/injection.cfm";
+include "../global/functions.cfm";
+include "../plugins/injection.cfm";
 </cfscript>
