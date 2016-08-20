@@ -157,12 +157,12 @@ component extends="Base" output="false" {
 						query = $query(sql="SELECT #local.tbl#_seq.currval AS lastId FROM dual", argumentCollection=arguments.queryAttributes);
 					} catch(any e) {
 						// in case the sequence doesn't exists return a blank string for the expected value
-						query.name.lastId = "";
+						query.lastId = "";
 					}
 				} else {
-					$query(sql="SELECT #arguments.primaryKey# AS lastId FROM #local.tbl# WHERE ROWID = '#arguments.result[$generatedKey()]#'", argumentCollection=arguments.queryAttributes);
+					query = $query(sql="SELECT #arguments.primaryKey# AS lastId FROM #local.tbl# WHERE ROWID = '#arguments.result[$generatedKey()]#'", argumentCollection=arguments.queryAttributes);
 				}
-				local.lastId = Trim(query.name.lastId);
+				local.lastId = Trim(query.lastId);
 				if (Len(query.name.lastId)) {
 					local.rv[$generatedKey()] = Trim(local.lastid);
 					return local.rv;

@@ -193,7 +193,7 @@ component extends="Base" output=false {
 			if (! ListFindNoCase(local.columnList, ListFirst(arguments.primaryKey))) {
 				local.rv = StructNew();
 				query = $query(sql="SELECT SCOPE_IDENTITY() AS lastId", argumentCollection=arguments.queryAttributes);
-				local.rv[$generatedKey()] = query.name.lastId;
+				local.rv[$generatedKey()] = query.lastId;
 				return local.rv;
 			}
 		}

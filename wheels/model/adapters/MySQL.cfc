@@ -96,7 +96,7 @@ component extends="Base" output=false {
 			if (! ListFindNoCase(local.columnList, ListFirst(arguments.primaryKey))) {
 				local.rv = {};
 				query = $query(sql="SELECT LAST_INSERT_ID() AS lastId", argumentCollection=arguments.queryAttributes);
-				local.rv[$generatedKey()] = query.name.lastId;
+				local.rv[$generatedKey()] = query.lastId;
 				return local.rv;
 			}
 		}
