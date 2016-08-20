@@ -88,7 +88,7 @@ component extends="Base" output=false {
 				local.rv = {};
 				local.tbl = SpanExcluding(Right(local.sql, Len(local.sql)-12), " ")
 				query = $query(sql="SELECT currval(pg_get_serial_sequence('#local.tbl#', '#arguments.primaryKey#')) AS lastId", argumentCollection=arguments.queryAttributes);
-				local.rv[$generatedKey()] = query.name.lastId;
+				local.rv[$generatedKey()] = query.lastId;
 				return local.rv;
 			}
 		}
