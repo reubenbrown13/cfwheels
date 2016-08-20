@@ -137,15 +137,15 @@ component extends="Base" output="false" {
 	) {
 		var query = {};
 		local.sql = Trim(arguments.result.sql);
-		if (Left(loc.sql, 11) IS "INSERT INTO") {
+		if (Left(local.sql, 11) IS "INSERT INTO") {
 
 			local.startPar = Find("(", local.sql) + 1;
 			local.endPar = Find(")", local.sql);
 			local.columnList = ReplaceList(Mid(local.sql, local.startPar, (local.endPar-local.startPar)), "#Chr(10)#,#Chr(13)#, ", ",,");
 
-			if (! ListFindNoCase(loc.columnList, ListFirst(arguments.primaryKey))) {
+			if (! ListFindNoCase(local.columnList, ListFirst(arguments.primaryKey))) {
 				local.rv = StructNew();
-				local.tbl = SpanExcluding(Right(loc.sql, Len(loc.sql)-12), " ");
+				local.tbl = SpanExcluding(Right(local.sql, Len(local.sql)-12), " ");
 				if (! StructKeyExists(arguments.result, $generatedKey()) || application.wheels.serverName IS NOT "Adobe ColdFusion") {
 					/*
 					there isn't a way in oracle to tell what (if any) sequences exists
