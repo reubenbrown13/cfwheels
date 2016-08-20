@@ -228,14 +228,14 @@ component extends="Base" output="false" {
 				ORDER BY
 					TC.COLUMN_ID
 			",
-			argumentCollection=loc.args
+			argumentCollection=local.args
 		);
 		/*
 		wheels catches the error and raises a Wheels.TableNotFound error
 		to mimic this we will throw an error if the query result is empty
 		 */
 		if (! local.rv.recordCount) {
-			$throw(type="Wheels.TableNotFound", message="The `#arguments.table#` table could not be found in the database..");
+			$throw(type="Wheels.TableNotFound", message="The `#arguments.table#` table could not be found in the database.");
 		}
 		return local.rv;
 	}
