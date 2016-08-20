@@ -163,7 +163,7 @@ component extends="Base" output="false" {
 					query = $query(sql="SELECT #arguments.primaryKey# AS lastId FROM #local.tbl# WHERE ROWID = '#arguments.result[$generatedKey()]#'", argumentCollection=arguments.queryAttributes);
 				}
 				local.lastId = Trim(query.lastId);
-				if (Len(query.name.lastId)) {
+				if (Len(query.lastId)) {
 					local.rv[$generatedKey()] = Trim(local.lastid);
 					return local.rv;
 				}
