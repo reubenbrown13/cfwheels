@@ -390,21 +390,22 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	,isactive=1
 )>
 
-<cfset loc.per = model("author").create(firstName="Per", lastName="Djurner")>
-<cfset loc.per.createProfile(dateOfBirth="20/02/1975", bio="ColdFusion Developer")>
-<cfset loc.per.createPost(title="Title for first test post", body="Text for first test post", views=5)>
-<cfset loc.per.createPost(title="Title for second test post", body="Text for second test post", views=5, averageRating="3.6")>
-<cfset loc.per.createPost(title="Title for third test post", body="Text for third test post", averageRating="3.2")>
-<cfset loc.tony = model("author").create(firstName="Tony", lastName="Petruzzi")>
-<cfset loc.tony.createPost(title="Title for fourth test post", body="Text for fourth test post", views=3, averageRating="3.6")>
-<cfset loc.tony.createPost(title="Title for fifth test post", body="Text for fifth test post", views=2, averageRating="3.6")>
-<cfset loc.chris = model("author").create(firstName="Chris", lastName="Peters")>
-<cfset loc.peter = model("author").create(firstName="Peter", lastName="Amiri")>
-<cfset loc.james = model("author").create(firstName="James", lastName="Gibson")>
-<cfset loc.raul = model("author").create(firstName="Raul", lastName="Riera")>
-<cfset loc.andy = model("author").create(firstName="Andy", lastName="Bellenie")>
-
-<cfset loc.users = model("user").findAll(order="id")>
+<cfscript>
+loc.per = model("author").create(firstName="Per", lastName="Djurner");
+loc.per.createProfile(dateOfBirth="20/02/1975", bio="ColdFusion Developer");
+loc.per.createPost(title="Title for first test post", body="Text for first test post", views=5);
+loc.per.createPost(title="Title for second test post", body="Text for second test post", views=5, averageRating="3.6");
+loc.per.createPost(title="Title for third test post", body="Text for third test post", averageRating="3.2");
+loc.tony = model("author").create(firstName="Tony", lastName="Petruzzi");
+loc.tony.createPost(title="Title for fourth test post", body="Text for fourth test post", views=3, averageRating="3.6");
+loc.tony.createPost(title="Title for fifth test post", body="Text for fifth test post", views=2, averageRating="3.6");
+loc.chris = model("author").create(firstName="Chris", lastName="Peters");
+loc.peter = model("author").create(firstName="Peter", lastName="Amiri");
+loc.james = model("author").create(firstName="James", lastName="Gibson");
+loc.raul = model("author").create(firstName="Raul", lastName="Riera");
+loc.andy = model("author").create(firstName="Andy", lastName="Bellenie");
+loc.users = model("user").findAll(order="id");
+</cfscript>
 
 <cfloop query="loc.users">
 	<cfloop from="1" to="5" index="loc.i">
@@ -424,14 +425,15 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	</cfloop>
 </cfloop>
 
-<cfset model("user2").create(username="Chris", password="x", firstName="x", lastName="x")>
-<cfset model("user2").create(username="Tim", password="x", firstName="x", lastName="x")>
-<cfset model("user2").create(username="Tom", password="x", firstName="x", lastName="x")>
+<cfscript>
+model("user2").create(username="Chris", password="x", firstName="x", lastName="x");
+model("user2").create(username="Tim", password="x", firstName="x", lastName="x");
+model("user2").create(username="Tom", password="x", firstName="x", lastName="x");
+// create a profile with an author
+model("profile").create(dateOfBirth="1/1/1970", bio="Unknown Author");
+loc.posts = model("post").findAll(order="id")>;
+</cfscript>
 
-<!--- create a profile with an author --->
-<cfset model("profile").create(dateOfBirth="1/1/1970", bio="Unknown Author")>
-
-<cfset loc.posts = model("post").findAll(order="id")>
 
 <cfloop query="loc.posts">
 	<cfloop from="1" to="3" index="loc.i">
@@ -460,26 +462,22 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	)>
 </cfloop>
 
-<cfset model("shop").create(shopid=" shop6", citycode=0, name="x")>
-
-<!--- tags --->
-<cfset loc.releases = model("tag").create(name="releases",description="testdesc")>
-<cfset model("tag").create(name="minor",description="a minor release", parentid=3)>
-<cfset model("tag").create(name="major",description="a major release")>
-<cfset model("tag").create(name="point",description="a point release", parentid=2)>
-
-<cfset loc.fruit = model("tag").create(name="fruit",description="something to eat")>
-<cfset model("tag").create(name="apple",description="ummmmmm good", parentid=loc.fruit.id)>
-<cfset model("tag").create(name="pear",description="rhymes with Per", parentid=loc.fruit.id)>
-<cfset model("tag").create(name="banana",description="peal it", parentid=loc.fruit.id)>
-
-<!--- classifications --->
-<cfset model("classification").create(postid=1,tagid=7)>
-
-<!--- collisiontests --->
-<cfset model("collisiontest").create(
-	method="test"
-)>
+<cfscript>
+model("shop").create(shopid=" shop6", citycode=0, name="x");
+// tags
+loc.releases = model("tag").create(name="releases", description="testdesc");
+model("tag").create(name="minor", description="a minor release", parentid=3);
+model("tag").create(name="major", description="a major release");
+model("tag").create(name="point", description="a point release", parentid=2);
+loc.fruit = model("tag").create(name="fruit", description="something to eat");
+model("tag").create(name="apple", description="ummmmmm good", parentid=loc.fruit.id);
+model("tag").create(name="pear", description="rhymes with Per", parentid=loc.fruit.id);
+model("tag").create(name="banana", description="peal it", parentid=loc.fruit.id);
+// classifications
+model("classification").create(postid=1,tagid=7);
+// collisiontests
+model("collisiontest").create(method="test")>;
+</cfscript>
 
 <!--- collisiontests --->
 <cfloop from="1" to="5" index="i">
@@ -492,11 +490,9 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	</cfloop>
 </cfloop>
 
-<!--- sqltype --->
-<cfset model("sqltype").create(
-	stringVariableType="tony"
-	,textType="blah blah blah blah"
-)>
-
-<!--- assign posts for multiple join test --->
-<cfset loc.andy.update(favouritePostId=1, leastFavouritePostId=2)>
+<cfscript>
+// sqltype
+model("sqltype").create(stringVariableType="tony", textType="blah blah blah blah");
+// assign posts for multiple join test
+loc.andy.update(favouritePostId=1, leastFavouritePostId=2);
+</cfscript>
