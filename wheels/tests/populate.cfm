@@ -319,13 +319,6 @@ $query(
 	<cfloop list="#loc.tables#" index="loc.i">
 		<cfif !ListFindNoCase("cities,shops,combikeys", loc.i)>
 			<cfset loc.seq = "#loc.i#_seq">
-			<cfif loc.i IS "photogalleries">
-				<cfset loc.col = "photogalleryid">
-			<cfelseif loc.i IS "photogalleryphotos">
-				<cfset loc.col = "photogalleryphotoid">
-			<cfelse>
-				<cfset loc.col = "id">
-			</cfif>
 			<cftry>
 			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
 			DROP SEQUENCE #loc.seq#
@@ -335,7 +328,13 @@ $query(
 			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
 			CREATE SEQUENCE #loc.seq# START WITH 1 INCREMENT BY 1
 			</cfquery>
-			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.#loc.col# FROM dual; END;</cfquery>
+			<cfif loc.i IS "photogalleries">
+				<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.photogalleryid FROM dual; END;</cfquery>
+			<cfelseif loc.i IS "photogalleryphotos">
+				<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.photogalleryphotoid FROM dual; END;</cfquery>
+			<cfelse>
+				<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.id FROM dual; END;</cfquery>
+			</cfif>
 		</cfif>
 	</cfloop>
 </cfif>
