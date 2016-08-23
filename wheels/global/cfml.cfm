@@ -226,5 +226,7 @@
 	<cfargument name="sql" type="string" required="true">
 	<cfset StructDelete(arguments, "name")>
 	<cfquery attributeCollection="#arguments#" name="local.rv">#PreserveSingleQuotes(arguments.sql)#</cfquery>
-	<cfreturn local.rv>
+	<cfif StructKeyExists(local, "rv")>
+		<cfreturn local.rv>
+	</cfif>
 </cffunction>
