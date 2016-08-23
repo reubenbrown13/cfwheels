@@ -429,40 +429,29 @@ loc.users = model("user").findAll(order="id");
 model("user2").create(username="Chris", password="x", firstName="x", lastName="x");
 model("user2").create(username="Tim", password="x", firstName="x", lastName="x");
 model("user2").create(username="Tom", password="x", firstName="x", lastName="x");
+
 // create a profile with an author
 model("profile").create(dateOfBirth="1/1/1970", bio="Unknown Author");
 loc.posts = model("post").findAll(order="id");
-</cfscript>
-
-<cfloop query="loc.posts">
-	<cfloop from="1" to="3" index="loc.i">
-		<cfset loc.comment = model("comment").create(
-			postid=loc.posts.id
+for (loc.post in loc.posts) {
+	for (loc.i in [1,2,3]) {
+		model("comment").create(
+			postid=loc.post.id
 			,body="This is comment #loc.i#"
 			,name="some commenter #loc.i#"
-			, url="http://#loc.i#.somecommenter.com"
-			, email="#loc.i#@#loc.i#.com"
-		)>
-	</cfloop>
-</cfloop>
+			,url="http://#loc.i#.somecommenter.com"
+			,email="#loc.i#@#loc.i#.com"
+		);
+	};
+};
 
-<!--- cities and shops --->
-<cfloop from="1" to="5" index="loc.i">
-	<cfset model("city").create(
-		id="3"
-		,citycode="#loc.i#"
-		,name="county #loc.i#"
-	)>
-
-	<cfset model("shop").create(
-		shopid="shop#loc.i#"
-		,citycode="#loc.i#"
-		,name="shop #loc.i#"
-	)>
-</cfloop>
-
-<cfscript>
+// cities and shops
+for (loc.i in [1,2,3,4,5]) {
+	model("city").create(id="3", citycode=loc.i, name="county #loc.i#");
+	model("shop").create(shopid="shop#loc.i#", citycode=loc.i, name="shop #loc.i#");
+};
 model("shop").create(shopid=" shop6", citycode=0, name="x");
+
 // tags
 loc.releases = model("tag").create(name="releases", description="testdesc");
 model("tag").create(name="minor", description="a minor release", parentid=3);
@@ -472,26 +461,21 @@ loc.fruit = model("tag").create(name="fruit", description="something to eat");
 model("tag").create(name="apple", description="ummmmmm good", parentid=loc.fruit.id);
 model("tag").create(name="pear", description="rhymes with Per", parentid=loc.fruit.id);
 model("tag").create(name="banana", description="peal it", parentid=loc.fruit.id);
+
 // classifications
 model("classification").create(postid=1,tagid=7);
+
 // collisiontests
 model("collisiontest").create(method="test");
-</cfscript>
+for (loc.i in [1,2,3,4,5]) {
+	for (loc.j in [1,2,3,4,5]) {
+		model("CombiKey").create(id1=loc.i, id2=loc.j, userId=loc.j);
+	};
+};
 
-<!--- collisiontests --->
-<cfloop from="1" to="5" index="i">
-	<cfloop from="1" to="5" index="a">
-		<cfset model("CombiKey").create(
-			id1="#i#",
-			id2="#a#",
-			userId="#a#"
-		)>
-	</cfloop>
-</cfloop>
-
-<cfscript>
 // sqltype
 model("sqltype").create(stringVariableType="tony", textType="blah blah blah blah");
+
 // assign posts for multiple join test
 loc.andy.update(favouritePostId=1, leastFavouritePostId=2);
 </cfscript>
