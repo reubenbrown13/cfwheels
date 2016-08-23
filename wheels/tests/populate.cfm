@@ -328,13 +328,9 @@ $query(
 			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
 			CREATE SEQUENCE #loc.seq# START WITH 1 INCREMENT BY 1
 			</cfquery>
-			<cfif loc.i IS "photogalleries">
-				<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.photogalleryid FROM dual; END;</cfquery>
-			<cfelseif loc.i IS "photogalleryphotos">
-				<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.photogalleryphotoid FROM dual; END;</cfquery>
-			<cfelse>
-				<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.id FROM dual; END;</cfquery>
-			</cfif>
+			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
+			CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.<cfif loc.i IS "photogalleries">photogalleryid<cfelseif loc.i IS "photogalleryphotos">photogalleryphotoid<cfelse>id</cfif> FROM dual; END;
+			</cfquery>
 		</cfif>
 	</cfloop>
 </cfif>
