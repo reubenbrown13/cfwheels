@@ -328,9 +328,7 @@ $query(
 			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
 			CREATE SEQUENCE #loc.seq# START WITH 1 INCREMENT BY 1
 			</cfquery>
-			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-			CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.<cfif loc.i IS "photogalleries">photogalleryid<cfelseif loc.i IS "photogalleryphotos">photogalleryphotoid<cfelse>id</cfif> FROM dual; END;
-			</cfquery>
+			<cfset $createOracleTrigger(table=loc.i)>
 		</cfif>
 	</cfloop>
 </cfif>
@@ -516,3 +514,11 @@ model("sqltype").create(stringVariableType="tony", textType="blah blah blah blah
 // assign posts for multiple join test
 loc.andy.update(favouritePostId=1, leastFavouritePostId=2);
 </cfscript>
+
+<!--- 10 points to whoever can get this to pass tests using cfscript --->
+<cffunction name="$createOracleTrigger" output="false">
+	<cfargument name="table" type="string" required="true">
+	<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
+	CREATE TRIGGER bi_#arguments.table# BEFORE INSERT ON #arguments.table# FOR EACH ROW BEGIN SELECT #arguments.table#_seq.nextval INTO :NEW.<cfif arguments.table IS "photogalleries">photogalleryid<cfelseif arguments.table IS "photogalleryphotos">photogalleryphotoid<cfelse>id</cfif> FROM dual; END;
+	</cfquery>
+</cffunction>
