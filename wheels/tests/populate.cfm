@@ -84,194 +84,235 @@ $query(
 		) #loc.storageEngine#
 	"
 );
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE cities
+	(
+		countyid char(4) NOT NULL
+		,citycode #loc.intColumnType# NOT NULL
+		,name varchar(50) NOT NULL
+		,PRIMARY KEY(countyid,citycode)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE classifications
+	(
+		id #loc.identityColumnType#
+		,postid #loc.intColumnType# NOT NULL
+		,tagid #loc.intColumnType# NOT NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE collisiontests
+	(
+		id #loc.identityColumnType#
+		,method varchar(100) NOT NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE combikeys
+	(
+		id1 int NOT NULL
+		,id2 int NOT NULL
+		,userId int NOT NULL
+		,PRIMARY KEY(id1,id2)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE comments
+	(
+		id #loc.identityColumnType#
+		,postid #loc.intColumnType# NOT NULL
+		,body #loc.textColumnType# NOT NULL
+		,name varchar(100) NOT NULL
+		,url varchar(100) NULL
+		,email varchar(100) NULL
+		,createdat #loc.datetimeColumnType# NOT NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE galleries
+	(
+		id #loc.identityColumnType#
+		,userid #loc.intColumnType# NOT NULL
+		,title varchar(255) NOT NULL
+		,description #loc.textColumnType# NOT NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE photos
+	(
+		id #loc.identityColumnType#
+		,galleryid #loc.intColumnType# NOT NULL
+		,filename varchar(255) NOT NULL
+		,description varchar(255) NOT NULL
+		,filedata #loc.binaryColumnType# NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE posts
+	(
+		id #loc.identityColumnType#
+		,authorid #loc.intColumnType# NULL
+		,title varchar(250) NOT NULL
+		,body #loc.textColumnType# NOT NULL
+		,createdat #loc.datetimeColumnType# NOT NULL
+		,updatedat #loc.datetimeColumnType# NOT NULL
+		,deletedat #loc.datetimeColumnType# NULL
+		,views #loc.intColumnType# DEFAULT 0 NOT NULL
+		,averagerating #loc.floatColumnType# NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE profiles
+	(
+		id #loc.identityColumnType#
+		,authorid #loc.intColumnType# NULL
+		,dateofbirth #loc.datetimeColumnType# NOT NULL
+		,bio #loc.textColumnType# NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE shops
+	(
+		shopid char(9) NOT NULL
+		,citycode #loc.intColumnType# NULL
+		,name varchar(80) NOT NULL
+		,PRIMARY KEY(shopid)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE sqltypes
+	(
+		id #loc.identityColumnType#
+		,booleanType #loc.bitColumnType# DEFAULT #loc.bitColumnDefault# NOT NULL
+		,binaryType #loc.binaryColumnType# NULL
+		,dateTimeType #loc.datetimeColumnType# DEFAULT #loc.dateTimeDefault# NOT NULL
+		,floatType #loc.floatColumnType# DEFAULT 1.25 NULL
+		,intType #loc.intColumnType# DEFAULT 1 NOT NULL
+		,stringType char(4) DEFAULT 'blah' NOT NULL
+		,stringVariableType varchar(80) NOT NULL
+		,textType #loc.textColumnType# NOT NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE tags
+	(
+		id #loc.identityColumnType#
+		,parentid #loc.intColumnType# NULL
+		,name varchar(50) NULL
+		,description varchar(50) NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE tblusers
+	(
+		id #loc.identityColumnType#
+		,username varchar(50) NOT NULL
+		,password varchar(50) NOT NULL
+		,firstname varchar(50) NOT NULL
+		,lastname varchar(50) NOT NULL
+		,address varchar(100) NULL
+		,city varchar(50) NULL
+		,state char(2) NULL
+		,zipcode varchar(50) NULL
+		,phone varchar(20) NULL
+		,fax varchar(20) NULL
+		,birthday #loc.datetimeColumnType# NULL
+		,birthdaymonth #loc.intColumnType# NULL
+		,birthdayyear #loc.intColumnType# NULL
+		,birthtime #loc.datetimeColumnType# DEFAULT #loc.dateTimeDefault# NULL
+		,isactive #loc.intColumnType# NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
+
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+	CREATE TABLE users
+	(
+		id #loc.identityColumnType#
+		,username varchar(50) NOT NULL
+		,password varchar(50) NOT NULL
+		,firstname varchar(50) NOT NULL
+		,lastname varchar(50) NOT NULL
+		,address varchar(100) NULL
+		,city varchar(50) NULL
+		,state char(2) NULL
+		,zipcode varchar(50) NULL
+		,phone varchar(20) NULL
+		,fax varchar(20) NULL
+		,birthday #loc.datetimeColumnType# NULL
+		,birthdaymonth #loc.intColumnType# NULL
+		,birthdayyear #loc.intColumnType# NULL
+		,birthtime #loc.datetimeColumnType# DEFAULT #loc.dateTimeDefault# NULL
+		,isactive #loc.intColumnType# NULL
+		,PRIMARY KEY(id)
+	) #loc.storageEngine#
+	"
+);
 </cfscript>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE cities
-(
-	countyid char(4) NOT NULL
-	,citycode #loc.intColumnType# NOT NULL
-	,name varchar(50) NOT NULL
-	,PRIMARY KEY(countyid,citycode)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE classifications
-(
-	id #loc.identityColumnType#
-	,postid #loc.intColumnType# NOT NULL
-	,tagid #loc.intColumnType# NOT NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE collisiontests
-(
-	id #loc.identityColumnType#
-	,method varchar(100) NOT NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE combikeys
-(
-	id1 int NOT NULL
-	,id2 int NOT NULL
-	,userId int NOT NULL
-	,PRIMARY KEY(id1,id2)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE comments
-(
-	id #loc.identityColumnType#
-	,postid #loc.intColumnType# NOT NULL
-	,body #loc.textColumnType# NOT NULL
-	,name varchar(100) NOT NULL
-	,url varchar(100) NULL
-	,email varchar(100) NULL
-	,createdat #loc.datetimeColumnType# NOT NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE galleries
-(
-	id #loc.identityColumnType#
-	,userid #loc.intColumnType# NOT NULL
-	,title varchar(255) NOT NULL
-	,description #loc.textColumnType# NOT NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE photos
-(
-	id #loc.identityColumnType#
-	,galleryid #loc.intColumnType# NOT NULL
-	,filename varchar(255) NOT NULL
-	,description varchar(255) NOT NULL
-	,filedata #loc.binaryColumnType# NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE posts
-(
-	id #loc.identityColumnType#
-	,authorid #loc.intColumnType# NULL
-	,title varchar(250) NOT NULL
-	,body #loc.textColumnType# NOT NULL
-	,createdat #loc.datetimeColumnType# NOT NULL
-	,updatedat #loc.datetimeColumnType# NOT NULL
-	,deletedat #loc.datetimeColumnType# NULL
-	,views #loc.intColumnType# DEFAULT 0 NOT NULL
-	,averagerating #loc.floatColumnType# NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE profiles
-(
-	id #loc.identityColumnType#
-	,authorid #loc.intColumnType# NULL
-	,dateofbirth #loc.datetimeColumnType# NOT NULL
-	,bio #loc.textColumnType# NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE shops
-(
-	shopid char(9) NOT NULL
-	,citycode #loc.intColumnType# NULL
-	,name varchar(80) NOT NULL
-	,PRIMARY KEY(shopid)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE sqltypes
-(
-	id #loc.identityColumnType#
-	,booleanType #loc.bitColumnType# DEFAULT #loc.bitColumnDefault# NOT NULL
-	,binaryType #loc.binaryColumnType# NULL
-	,dateTimeType #loc.datetimeColumnType# DEFAULT #PreserveSingleQuotes(loc.dateTimeDefault)# NOT NULL
-	,floatType #loc.floatColumnType# DEFAULT 1.25 NULL
-	,intType #loc.intColumnType# DEFAULT 1 NOT NULL
-	,stringType char(4) DEFAULT 'blah' NOT NULL
-	,stringVariableType varchar(80) NOT NULL
-	,textType #loc.textColumnType# NOT NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE tags
-(
-	id #loc.identityColumnType#
-	,parentid #loc.intColumnType# NULL
-	,name varchar(50) NULL
-	,description varchar(50) NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE tblusers
-(
-	id #loc.identityColumnType#
-	,username varchar(50) NOT NULL
-	,password varchar(50) NOT NULL
-	,firstname varchar(50) NOT NULL
-	,lastname varchar(50) NOT NULL
-	,address varchar(100) NULL
-	,city varchar(50) NULL
-	,state char(2) NULL
-	,zipcode varchar(50) NULL
-	,phone varchar(20) NULL
-	,fax varchar(20) NULL
-	,birthday #loc.datetimeColumnType# NULL
-	,birthdaymonth #loc.intColumnType# NULL
-	,birthdayyear #loc.intColumnType# NULL
-	,birthtime #loc.datetimeColumnType# DEFAULT #PreserveSingleQuotes(loc.dateTimeDefault)# NULL
-	,isactive #loc.intColumnType# NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE users
-(
-	id #loc.identityColumnType#
-	,username varchar(50) NOT NULL
-	,password varchar(50) NOT NULL
-	,firstname varchar(50) NOT NULL
-	,lastname varchar(50) NOT NULL
-	,address varchar(100) NULL
-	,city varchar(50) NULL
-	,state char(2) NULL
-	,zipcode varchar(50) NULL
-	,phone varchar(20) NULL
-	,fax varchar(20) NULL
-	,birthday #loc.datetimeColumnType# NULL
-	,birthdaymonth #loc.intColumnType# NULL
-	,birthdayyear #loc.intColumnType# NULL
-	,birthtime #loc.datetimeColumnType# DEFAULT #PreserveSingleQuotes(loc.dateTimeDefault)# NULL
-	,isactive #loc.intColumnType# NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
-
 
 <!--- create oracle sequences --->
 <cfif loc.db eq "oracle">
