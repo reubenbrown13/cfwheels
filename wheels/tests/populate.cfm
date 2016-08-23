@@ -304,8 +304,9 @@ SELECT u.id AS userid, u.username AS username, u.firstname AS firstname, u.lastn
 FROM users u INNER JOIN galleries g ON u.id = g.userid
 </cfquery>
 
-<!--- populate with data --->
-<cfset loc.user = model("user").create(
+<cfscript>
+// populate with data
+loc.user = model("user").create(
 	username='tonyp'
 	,password='tonyp123'
 	,firstname='Tony'
@@ -320,9 +321,9 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	,birthdaymonth=11
 	,birthdayyear=1975
 	,isactive=1
-)>
+);
 
-<cfset loc.user = model("user").create(
+loc.user = model("user").create(
 	username='chrisp'
 	,password='chrisp123'
 	,firstname='Chris'
@@ -337,9 +338,9 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	,birthdaymonth=10
 	,birthdayyear=1972
 	,isactive=1
-)>
+);
 
-<cfset loc.user = model("user").create(
+loc.user = model("user").create(
 	username='perd'
 	,password='perd123'
 	,firstname='Per'
@@ -354,9 +355,9 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	,birthdaymonth=9
 	,birthdayyear=1973
 	,isactive=1
-)>
+);
 
-<cfset loc.user = model("user").create(
+loc.user = model("user").create(
 	username='raulr'
 	,password='raulr23'
 	,firstname='Raul'
@@ -371,9 +372,9 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	,birthdaymonth=6
 	,birthdayyear=1981
 	,isactive=1
-)>
+);
 
-<cfset loc.user = model("user").create(
+loc.user = model("user").create(
 	username='joeb'
 	,password='joeb'
 	,firstname='Joe'
@@ -388,9 +389,8 @@ FROM users u INNER JOIN galleries g ON u.id = g.userid
 	,birthdaymonth=11
 	,birthdayyear=1973
 	,isactive=1
-)>
+);
 
-<cfscript>
 loc.per = model("author").create(firstName="Per", lastName="Djurner");
 loc.per.createProfile(dateOfBirth="20/02/1975", bio="ColdFusion Developer");
 loc.per.createPost(title="Title for first test post", body="Text for first test post", views=5);
@@ -431,9 +431,8 @@ model("user2").create(username="Tim", password="x", firstName="x", lastName="x")
 model("user2").create(username="Tom", password="x", firstName="x", lastName="x");
 // create a profile with an author
 model("profile").create(dateOfBirth="1/1/1970", bio="Unknown Author");
-loc.posts = model("post").findAll(order="id")>;
+loc.posts = model("post").findAll(order="id");
 </cfscript>
-
 
 <cfloop query="loc.posts">
 	<cfloop from="1" to="3" index="loc.i">
