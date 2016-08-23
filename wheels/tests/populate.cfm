@@ -319,6 +319,13 @@ $query(
 	<cfloop list="#loc.tables#" index="loc.i">
 		<cfif !ListFindNoCase("cities,shops,combikeys", loc.i)>
 			<cfset loc.seq = "#loc.i#_seq">
+			<cfif loc.i IS "photogalleries">
+				<cfset loc.col = "photogalleryid">
+			<cfelseif loc.i IS "photogalleryphotos">
+				<cfset loc.col = "photogalleryphotoid">
+			<cfelse>
+				<cfset loc.col = "id">
+			</cfif>
 			<cftry>
 			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
 			DROP SEQUENCE #loc.seq#
@@ -329,7 +336,7 @@ $query(
 			CREATE SEQUENCE #loc.seq# START WITH 1 INCREMENT BY 1
 			</cfquery>
 			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-			CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.<cfif loc.i IS "photogalleries">photogalleryid<cfelseif loc.i IS "photogalleryphotos">photogalleryphotoid<cfelse>id</cfif> FROM dual; END;
+			CREATE TRIGGER bi_#loc.i# BEFORE INSERT ON #loc.i# FOR EACH ROW BEGIN SELECT #loc.seq#.nextval INTO :NEW.#loc.col# FROM dual; END;
 			</cfquery>
 		</cfif>
 	</cfloop>
