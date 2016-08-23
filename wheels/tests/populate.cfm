@@ -475,7 +475,7 @@ model("tag").create(name="banana", description="peal it", parentid=loc.fruit.id)
 // classifications
 model("classification").create(postid=1,tagid=7);
 // collisiontests
-model("collisiontest").create(method="test")>;
+model("collisiontest").create(method="test");
 </cfscript>
 
 <!--- collisiontests --->
