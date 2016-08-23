@@ -335,17 +335,17 @@ $query(
 	</cfloop>
 </cfif>
 
-
-<!---
-create views
- --->
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE VIEW userphotos AS
-SELECT u.id AS userid, u.username AS username, u.firstname AS firstname, u.lastname AS lastname, g.title AS title, g.id AS galleryid
-FROM users u INNER JOIN galleries g ON u.id = g.userid
-</cfquery>
-
 <cfscript>
+// create view
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+		CREATE VIEW userphotos AS
+		SELECT u.id AS userid, u.username AS username, u.firstname AS firstname, u.lastname AS lastname, g.title AS title, g.id AS galleryid
+		FROM users u INNER JOIN galleries g ON u.id = g.userid
+	"
+);
+
 // populate with data
 loc.user = model("user").create(
 	username='tonyp'
