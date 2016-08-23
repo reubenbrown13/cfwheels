@@ -58,21 +58,21 @@ for (loc.i in loc.tables) {
 		}
 	}
 };
+
+// list of views to delete
+loc.views = "userphotos";
+for (loc.i in loc.views) {
+	if (ListFindNoCase(loc.tableList, loc.i, Chr(7))) {
+		try {
+			$query(datasource=application.wheels.dataSourceName, sql="DROP VIEW #loc.i#");
+		} catch(any e) {
+			// skip on fail
+		}
+	}
+};
 </cfscript>
 
-<!--- list of views to delete --->
-<cfset loc.views = "userphotos">
-<cfloop list="#loc.views#" index="loc.i">
-	<cfif ListFindNoCase(loc.tableList, loc.i, chr(7))>
-		<cftry>
-			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-			DROP VIEW #loc.i#
-			</cfquery>
-			<cfcatch>
-			</cfcatch>
-		</cftry>
-	</cfif>
-</cfloop>
+
 
 <!---
 create tables
