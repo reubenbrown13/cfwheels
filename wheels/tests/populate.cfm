@@ -446,27 +446,23 @@ loc.james = model("author").create(firstName="James", lastName="Gibson");
 loc.raul = model("author").create(firstName="Raul", lastName="Riera");
 loc.andy = model("author").create(firstName="Andy", lastName="Bellenie");
 loc.users = model("user").findAll(order="id");
-</cfscript>
-
-<cfloop query="loc.users">
-	<cfloop from="1" to="5" index="loc.i">
-		<cfset loc.gallery = model("gallery").create(
-			userid="#loc.users.id#"
+for (loc.user in loc.users) {
+	for (loc.i in [1,2,3,4,5]) {
+		loc.gallery = model("gallery").create(
+			userid=loc.users.id
 			,title="#loc.users.firstname# Test Galllery #loc.i#"
 			,description="test gallery #loc.i# for #loc.users.firstname#"
-		)>
+		);
+		for (loc.j in [1,2,3,4,5,6,7,8,9,10]) {
+			model("photo").create(
+				galleryid=loc.gallery.id
+				,filename="Gallery #loc.gallery.id# Photo Test #loc.j#"
+				,description1="test photo #loc.j# for gallery #loc.gallery.id#"
+			)
+		};
+	};
+};
 
-		<cfloop from="1" to="10" index="loc.i2">
-			<cfset loc.photo = model("photo").create(
-				galleryid="#loc.gallery.id#"
-				,filename="Gallery #loc.gallery.id# Photo Test #loc.i2#"
-				,description1="test photo #loc.i2# for gallery #loc.gallery.id#"
-			)>
-		</cfloop>
-	</cfloop>
-</cfloop>
-
-<cfscript>
 model("user2").create(username="Chris", password="x", firstName="x", lastName="x");
 model("user2").create(username="Tim", password="x", firstName="x", lastName="x");
 model("user2").create(username="Tom", password="x", firstName="x", lastName="x");
