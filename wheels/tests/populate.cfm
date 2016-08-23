@@ -70,22 +70,21 @@ for (loc.i in loc.views) {
 		}
 	}
 };
+
+// create tables
+$query(
+	datasource=application.wheels.dataSourceName,
+	sql="
+		CREATE TABLE authors
+		(
+			id #loc.identityColumnType#
+			,firstname varchar(100) NOT NULL
+			,lastname varchar(100) NOT NULL
+			,PRIMARY KEY(id)
+		) #loc.storageEngine#
+	"
+);
 </cfscript>
-
-
-
-<!---
-create tables
- --->
-<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-CREATE TABLE authors
-(
-	id #loc.identityColumnType#
-	,firstname varchar(100) NOT NULL
-	,lastname varchar(100) NOT NULL
-	,PRIMARY KEY(id)
-) #loc.storageEngine#
-</cfquery>
 
 <cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
 CREATE TABLE cities
