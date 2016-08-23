@@ -1,47 +1,48 @@
-<!--- get the version of the database we're running against --->
-<cftry>
-	<cfdbinfo name="loc.dbinfo" datasource="#application.wheels.dataSourceName#" type="version">
-	<cfcatch type="any">
-		<cfthrow message="Datasource not found?" detail="The CFDBINFO call appears to have failed when looking for #application.wheels.dataSourceName#">
-	</cfcatch>
-</cftry>
-<cfset loc.db = LCase(Replace(loc.dbinfo.database_productname, " ", "", "all"))>
+<cfscript>
+// get the version of the database we're running against
+try {
+	loc.dbinfo = $dbinfo(datasource=application.wheels.dataSourceName, type="version");
+} catch(any e) {
+	$throw(message="Datasource not found?", detail="The CFDBINFO call appears to have failed when looking for #application.wheels.dataSourceName#");
+}
+loc.db = LCase(Replace(loc.dbinfo.database_productname, " ", "", "all"))
 
-<!--- handle differences in database for identity inserts, column types etc--->
-<cfset loc.storageEngine = "">
-<cfset loc.dateTimeColumnType = "datetime">
-<cfset loc.dateTimeDefault = "'2000-01-01 18:26:08.490'">
-<cfset loc.binaryColumnType = "blob">
-<cfset loc.textColumnType = "text">
-<cfset loc.intColumnType = "int">
-<cfset loc.floatColumnType = "float">
-<cfset loc.identityColumnType = "">
-<cfset loc.bitColumnType = "bit">
-<cfset loc.bitColumnDefault = 0>
+// handle differences in database for identity inserts, column types etc
+loc.storageEngine = "";
+loc.dateTimeColumnType = "datetime";
+loc.dateTimeDefault = "'2000-01-01 18:26:08.490'";
+loc.binaryColumnType = "blob";
+loc.textColumnType = "text";
+loc.intColumnType = "int";
+loc.floatColumnType = "float";
+loc.identityColumnType = "";
+loc.bitColumnType = "bit";
+loc.bitColumnDefault = 0;
 
-<cfif loc.db IS "microsoftsqlserver">
-	<cfset loc.identityColumnType = "int NOT NULL IDENTITY(1,1)">
-	<cfset loc.binaryColumnType = "image">
-<cfelseif loc.db IS "mysql" or loc.db IS "mariadb">
-	<cfset loc.identityColumnType = "int NOT NULL AUTO_INCREMENT">
-	<cfset loc.storageEngine = "ENGINE=InnoDB">
-<cfelseif loc.db IS "h2">
-	<cfset loc.identityColumnType = "int NOT NULL IDENTITY">
-<cfelseif loc.db IS "postgresql">
-	<cfset loc.identityColumnType = "SERIAL NOT NULL">
-	<cfset loc.dateTimeColumnType = "timestamp">
-	<cfset loc.binaryColumnType = "bytea">
-	<cfset loc.bitColumnType = "boolean">
-	<cfset loc.bitColumnDefault = "false">
-<cfelseif loc.db IS "oracle">
-	<cfset loc.identityColumnType = "number(38,0) NOT NULL">
-	<cfset loc.dateTimeColumnType = "timestamp">
-	<cfset loc.textColumnType = "varchar2(4000)">
-	<cfset loc.intColumnType = "number(38,0)">
-	<cfset loc.floatColumnType = "number(38,2)">
-	<cfset loc.dateTimeDefault = "to_timestamp(#loc.dateTimeDefault#,'yyyy-dd-mm hh24:mi:ss.FF')">
-	<cfset loc.bitColumnType = "number(1)">
-</cfif>
+if (loc.db IS "microsoftsqlserver") {
+	loc.identityColumnType = "int NOT NULL IDENTITY(1,1)";
+	loc.binaryColumnType = "image";
+} else if (loc.db IS "mysql" or loc.db IS "mariadb") {
+	loc.identityColumnType = "int NOT NULL AUTO_INCREMENT";
+	loc.storageEngine = "ENGINE=InnoDB";
+} else if (loc.db IS "h2") {
+	loc.identityColumnType = "int NOT NULL IDENTITY";
+} else if (loc.db IS "postgresql") {
+	loc.identityColumnType = "SERIAL NOT NULL";
+	loc.dateTimeColumnType = "timestamp";
+	loc.binaryColumnType = "bytea";
+	loc.bitColumnType = "boolean";
+	loc.bitColumnDefault = "false";
+} else if (loc.db IS "oracle") {
+	loc.identityColumnType = "number(38,0) NOT NULL";
+	loc.dateTimeColumnType = "timestamp";
+	loc.textColumnType = "varchar2(4000)";
+	loc.intColumnType = "number(38,0)";
+	loc.floatColumnType = "number(38,2)";
+	loc.dateTimeDefault = "to_timestamp(#loc.dateTimeDefault#,'yyyy-dd-mm hh24:mi:ss.FF')";
+	loc.bitColumnType = "number(1)";
+}
+</cfscript>
 
 <!--- get a listing of all the tables and view in the database --->
 <cfdbinfo name="loc.dbinfo" datasource="#application.wheels.dataSourceName#" type="tables">
