@@ -42,25 +42,23 @@ if (loc.db IS "microsoftsqlserver") {
 	loc.dateTimeDefault = "to_timestamp(#loc.dateTimeDefault#,'yyyy-dd-mm hh24:mi:ss.FF')";
 	loc.bitColumnType = "number(1)";
 }
+
+// get a listing of all the tables and view in the database
+loc.dbinfo = $dbinfo(datasource=application.wheels.dataSourceName, type="tables");
+loc.tableList = ValueList(loc.dbinfo.table_name, Chr(7));
+
+// list of tables to delete
+loc.tables = "authors,cities,classifications,comments,galleries,photos,posts,profiles,shops,tags,users,collisiontests,combikeys,tblusers,sqltypes";
+for (loc.i in loc.tables) {
+	if (ListFindNoCase(loc.tableList, loc.i, Chr(7))) {
+		try {
+			$query(datasource=application.wheels.dataSourceName, sql="DROP TABLE #loc.i#");
+		} catch(any e) {
+			// skip on fail
+		}
+	}
+};
 </cfscript>
-
-<!--- get a listing of all the tables and view in the database --->
-<cfdbinfo name="loc.dbinfo" datasource="#application.wheels.dataSourceName#" type="tables">
-<cfset loc.tableList = ValueList(loc.dbinfo.table_name, chr(7))>
-
-<!--- list of tables to delete --->
-<cfset loc.tables = "authors,cities,classifications,comments,galleries,photos,posts,profiles,shops,tags,users,collisiontests,combikeys,tblusers,sqltypes">
-<cfloop list="#loc.tables#" index="loc.i">
-	<cfif ListFindNoCase(loc.tableList, loc.i, chr(7))>
-		<cftry>
-			<cfquery name="loc.query" datasource="#application.wheels.dataSourceName#">
-			DROP TABLE #loc.i#
-			</cfquery>
-			<cfcatch>
-			</cfcatch>
-		</cftry>
-	</cfif>
-</cfloop>
 
 <!--- list of views to delete --->
 <cfset loc.views = "userphotos">
