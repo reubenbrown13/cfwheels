@@ -136,6 +136,7 @@ public string function $request(
 	struct formScope=form,
 	struct urlScope=url
 ) {
+
 	if ($get("showDebugInformation")) {
 		$debugPoint("setup");
 	}
@@ -418,4 +419,27 @@ public string function $getRequestMethod() {
 	return request.cgi.request_method;
 }
 
+/**
+ * A test helper function which parses path for route pattern and query string, then calls processRequest
+ */
+public any function $visit(required string path, string method = "get", string returnAs = "struct") {
+
+	local.pathInfo = arguments.path;
+	local.queryString = "";
+
+	// Split queryString and route pattern
+	if (arguments.path contains "?") {
+		local.pathInfo = ListFirst(arguments.path, "?")
+		local.queryString = ListRest(arguments.path, "?");
+	}
+
+	// Create params from query string
+	local.params = $paramParser(pathInfo=local.pathInfo);
+	for (local.i in ListToArray(local.queryString, "&")) {
+		local.nameValuePair = ListToArray(local.i, "=");
+		local.params[local.nameValuePair[1]] = local.nameValuePair[2];
+	}
+
+	return processRequest(params=local.params, method=arguments.method, returnAs=arguments.returnAs);
+}
 </cfscript>

@@ -314,8 +314,15 @@ public any function processRequest(required struct params, string method, string
 			flash = local.controller.flash(),
 			redirect = local.redirect,
 			status = local.status,
-			type = $contentType()
+			type = $contentType(),
+			controller = arguments.params.controller,
+			action = arguments.params.action,
+			params = arguments.params,
 		};
+		if (StructKeyExists(arguments.params, "route")) {
+			local.rv.route = arguments.params.route;
+		}
+
 	} else {
 		local.rv = local.body;
 	}
