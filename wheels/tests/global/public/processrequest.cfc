@@ -1,5 +1,17 @@
 component extends="wheels.tests.Test" {
 
+	function setup() {
+		savedViewPath = application.wheels.viewPath;
+		savedRoutes = duplicate(application.wheels.routes);
+		application.wheels.viewPath = "wheels/tests/_assets/views";
+		application.wheels.routes = [];
+	}
+
+	function teardown() {
+		application.wheels.viewPath = savedViewPath;
+		application.wheels.routes = savedRoutes;
+	}
+
 	function test_process_request() {
 		local.params = {
 			action = "show",
@@ -40,18 +52,6 @@ component extends="wheels.tests.Test" {
 		assert("Find(expected, result)");
 	}
 
-	function setup() {
-		savedViewPath = application.wheels.viewPath;
-		savedRoutes = duplicate(application.wheels.routes);
-		application.wheels.viewPath = "wheels/tests/_assets/views";
-		application.wheels.routes = [];
-	}
-
-	function teardown() {
-		application.wheels.viewPath = savedViewPath;
-		application.wheels.routes = savedRoutes;
-	}
-
 	function test_process_request_url_argument_with_existing_view() {
 		pattern = "/main/template";
 		mapper()
@@ -80,6 +80,20 @@ component extends="wheels.tests.Test" {
 		actual = processRequest(url="/", returnAs="struct");
 
 		assert("actual.body contains 'main controller template content'");
+	}
+
+	function test_process_request_url_posted_params_remain_with_querystring_use() {
+		mapper()
+			.post(to="main##template", pattern="/main/template")
+		.end();
+		local.params = {
+			posted = "true",
+			foo = "bar"
+		};
+		actual = processRequest(url="/main/template?foo=false", method="post", params=local.params, returnAs="struct");
+
+		assert("actual.params.posted == 'true'");
+		assert("actual.params.foo == 'bar'");
 	}
 
 }

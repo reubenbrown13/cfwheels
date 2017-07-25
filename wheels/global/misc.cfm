@@ -299,29 +299,33 @@ public any function processRequest(
 
 		// Split queryString and route pattern
 		if (arguments.url contains "?") {
-			local.pattern = ListFirst(arguments.url, "?")
+			local.pattern = ListFirst(arguments.url, "?");
 			local.queryString = ListRest(arguments.url, "?");
 		} else {
 			local.pattern = arguments.url;
 			local.queryString = "";
 		}
 
-		// strip leading slash.. there must be a better way to dio this
-		// local.pattern = application.wheels.$normalizePattern(local.pattern);
+		// strip leading slash.. there must be a better way to do this
 		if (Left(local.pattern, 1) == "/") {
 			local.pattern = Replace(local.pattern, "/", "", "one");
 		}
 
 		// run the pattern
 		local.route = local.dispatch.$findMatchingRoute(path=local.pattern);
-		arguments.params = local.dispatch.$createParams(path=local.pattern, route=local.route, formScope={}, urlScope={});
+		local.params = local.dispatch.$createParams(path=local.pattern, route=local.route, formScope={}, urlScope={});
 
 		// Create params from query string
 		for (local.i in ListToArray(local.queryString, "&")) {
 			local.nameValuePair = ListToArray(local.i, "=");
-			arguments.params[local.nameValuePair[1]] = local.nameValuePair[2];
+			local.params[local.nameValuePair[1]] = local.nameValuePair[2];
 		}
-
+		// params passed in as arguments take precedence over url params
+		if (StructKeyExists(arguments, "params")) {
+			StructAppend(arguments.params, local.params, false);
+		} else {
+			arguments.params = local.params;
+		}
 	}
 
 	local.controller = controller(name=arguments.params.controller, params=arguments.params);
