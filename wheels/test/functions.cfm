@@ -227,14 +227,6 @@ public string function raised(required string expression) {
 	return "";
 }
 
-/**
- * A test helper function which parses path for route pattern and query string, then calls processRequest
- */
-public any function visit(required string path, string method = "get", string returnAs = "struct") {
-	local.dispatch = CreateObject("component", "wheels.Dispatch");
-	return local.dispatch.$visit(argumentCollection=arguments);
-}
-
 /*
 	Run all the tests in a component.
 

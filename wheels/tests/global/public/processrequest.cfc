@@ -40,4 +40,46 @@ component extends="wheels.tests.Test" {
 		assert("Find(expected, result)");
 	}
 
+	function setup() {
+		savedViewPath = application.wheels.viewPath;
+		savedRoutes = duplicate(application.wheels.routes);
+		application.wheels.viewPath = "wheels/tests/_assets/views";
+		application.wheels.routes = [];
+	}
+
+	function teardown() {
+		application.wheels.viewPath = savedViewPath;
+		application.wheels.routes = savedRoutes;
+	}
+
+	function test_process_request_url_argument_with_existing_view() {
+		pattern = "/main/template";
+		mapper()
+			.get(to="main##template", pattern=pattern)
+		.end();
+		actual = processRequest(url=pattern, returnAs="struct");
+
+		assert("actual.status == 200");
+		assert("actual.controller == 'main'");
+		assert("actual.action == 'template'");
+		assert("actual.body contains 'main controller template content'");
+	}
+
+	function test_process_request_url_argument_with_query_string() {
+		mapper()
+			.get(to="main##template", pattern="/main/template")
+		.end();
+		actual = processRequest(url="/main/template?foo=bar", returnAs="struct");
+		assert("actual.params.foo == 'bar'");
+	}
+
+	function test_process_url_argument_request_root() {
+		mapper()
+			.root(to="main##template")
+		.end();
+		actual = processRequest(url="/", returnAs="struct");
+
+		assert("actual.body contains 'main controller template content'");
+	}
+
 }

@@ -260,9 +260,18 @@ public struct function mapper(boolean restful=true, boolean methods=arguments.re
  * [category: Miscellaneous Functions]
  *
  * @params The params struct with controller and action set.
- * @returnAs Return format
+ * @url A url representing a route pattern.
+ * @method The http method of the request.
+ * @returnAs Return format.
+ * @rollback When true, the transaction mode is set to rollback.
  */
-public any function processRequest(required struct params, string method, string returnAs, string rollback) {
+public any function processRequest(
+	struct params,
+	string url,
+	string method,
+	string returnAs,
+	boolean rollback,
+	) {
 	$args(name="processRequest", args=arguments);
 
 	// Set the global transaction mode to rollback when specified.
@@ -283,6 +292,37 @@ public any function processRequest(required struct params, string method, string
 	$set(functionName="sendEmail", deliver=false);
 	local.deliverFile = $get(functionName="sendFile", name="deliver");
 	$set(functionName="sendFile", deliver=false);
+
+	if (Len(arguments.url)) {
+
+		local.dispatch = CreateObject("component", "wheels.Dispatch");
+
+		// Split queryString and route pattern
+		if (arguments.url contains "?") {
+			local.pattern = ListFirst(arguments.url, "?")
+			local.queryString = ListRest(arguments.url, "?");
+		} else {
+			local.pattern = arguments.url;
+			local.queryString = "";
+		}
+
+		// strip leading slash.. there must be a better way to dio this
+		// local.pattern = application.wheels.$normalizePattern(local.pattern);
+		if (Left(local.pattern, 1) == "/") {
+			local.pattern = Replace(local.pattern, "/", "", "one");
+		}
+
+		// run the pattern
+		local.route = local.dispatch.$findMatchingRoute(path=local.pattern);
+		arguments.params = local.dispatch.$createParams(path=local.pattern, route=local.route, formScope={}, urlScope={});
+
+		// Create params from query string
+		for (local.i in ListToArray(local.queryString, "&")) {
+			local.nameValuePair = ListToArray(local.i, "=");
+			arguments.params[local.nameValuePair[1]] = local.nameValuePair[2];
+		}
+
+	}
 
 	local.controller = controller(name=arguments.params.controller, params=arguments.params);
 
@@ -319,9 +359,6 @@ public any function processRequest(required struct params, string method, string
 			action = arguments.params.action,
 			params = arguments.params,
 		};
-		if (StructKeyExists(arguments.params, "route")) {
-			local.rv.route = arguments.params.route;
-		}
 
 	} else {
 		local.rv = local.body;
