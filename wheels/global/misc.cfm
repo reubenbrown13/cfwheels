@@ -316,8 +316,10 @@ public any function processRequest(
 		local.params = local.dispatch.$createParams(path=local.pattern, route=local.route, formScope={}, urlScope={});
 
 		// Create params from query string
-		for (local.i in ListToArray(local.queryString, "&")) {
-			local.nameValuePair = ListToArray(local.i, "=");
+		local.nameValuePairArray = ListToArray(local.queryString, "&");
+		local.iEnd = ArrayLen(local.nameValuePairArray);
+		for (local.i = 1; local.i <= local.iEnd; local.i++) {
+			local.nameValuePair = ListToArray(local.nameValuePairArray[local.i], "=");
 			local.params[local.nameValuePair[1]] = local.nameValuePair[2];
 		}
 		// params passed in as arguments take precedence over url params
