@@ -59,9 +59,9 @@ component extends="wheels.tests.Test" {
 		.end();
 		actual = processRequest(url=pattern, returnAs="struct");
 
-		assert("actual.status == 200");
-		assert("actual.controller == 'main'");
-		assert("actual.action == 'template'");
+		assert("actual.status eq 200");
+		assert("actual.controller eq 'main'");
+		assert("actual.action eq 'template'");
 		assert("actual.body contains 'main controller template content'");
 	}
 
@@ -70,7 +70,7 @@ component extends="wheels.tests.Test" {
 			.get(to="main##template", pattern="/main/template")
 		.end();
 		actual = processRequest(url="/main/template?foo=bar", returnAs="struct");
-		assert("actual.params.foo == 'bar'");
+		assert("actual.params.foo eq 'bar'");
 	}
 
 	function test_process_url_argument_request_root() {
@@ -92,8 +92,8 @@ component extends="wheels.tests.Test" {
 		};
 		actual = processRequest(url="/main/template?foo=false", method="post", params=local.params, returnAs="struct");
 
-		assert("actual.params.posted == 'true'");
-		assert("actual.params.foo == 'bar'");
+		assert("actual.params.posted eq 'true'");
+		assert("actual.params.foo eq 'bar'");
 	}
 
 }

@@ -270,8 +270,8 @@ public any function processRequest(
 	string url,
 	string method,
 	string returnAs,
-	boolean rollback,
-	) {
+	boolean rollback
+) {
 	$args(name="processRequest", args=arguments);
 
 	// Set the global transaction mode to rollback when specified.
@@ -293,7 +293,7 @@ public any function processRequest(
 	local.deliverFile = $get(functionName="sendFile", name="deliver");
 	$set(functionName="sendFile", deliver=false);
 
-	if (Len(arguments.url)) {
+	if (StructKeyExists(arguments, "url") && Len(arguments.url)) {
 
 		local.dispatch = CreateObject("component", "wheels.Dispatch");
 
@@ -363,7 +363,7 @@ public any function processRequest(
 			type = $contentType(),
 			controller = arguments.params.controller,
 			action = arguments.params.action,
-			params = arguments.params,
+			params = arguments.params
 		};
 
 	} else {
