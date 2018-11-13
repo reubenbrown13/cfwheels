@@ -293,7 +293,7 @@ public string function $formValue(required any objectName, required string prope
 		if (StructKeyExists(local.object, arguments.property)) {
 			if ( isArray( local.object[arguments.property] ) ) {
 				// converts array of values to string.
-				if ( isStruct( local.object[arguments.property][1] ) ) {
+				if ( arrayLen( local.object[arguments.property] ) GT 0 AND isStruct( local.object[arguments.property][1] ) ) {
 					local.fkColName = singularize( ReplaceNoCase(local.object[arguments.property][1].tableName(), singularize( local.object.tableName() ), "" ) ) & "id";
 					local.rv = "";
 					for ( prop IN local.object[arguments.property] ) {
