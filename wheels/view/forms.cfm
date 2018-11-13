@@ -98,7 +98,7 @@ public string function startFormTag(
 			}
 		}
 	}
-	
+
 	// if we have a route and method, tap
 	if (Len(arguments.route) && StructKeyExists(arguments, "method")) {
 
@@ -291,7 +291,22 @@ public string function $formValue(required any objectName, required string prope
 			Throw(type="Wheels.IncorrectArguments", message="The `#arguments.objectName#` variable is not an object.");
 		}
 		if (StructKeyExists(local.object, arguments.property)) {
-			local.rv = local.object[arguments.property];
+			if ( isArray( local.object[arguments.property] ) ) {
+				// converts array of values to string.
+				if ( isStruct( local.object[arguments.property][1] ) ) {
+					local.fkColName = singularize( ReplaceNoCase(local.object[arguments.property][1].tableName(), singularize( local.object.tableName() ), "" ) ) & "id";
+					local.rv = "";
+					for ( prop IN local.object[arguments.property] ) {
+						if ( structKeyExists(prop, local.fkColName) ) {
+							local.rv = ListAppend( local.rv, prop[local.fkColName] );
+						}
+					}
+				} else {
+					local.rv = ArrayToList( local.object[arguments.property] );
+				}
+			} else {
+				local.rv = local.object[arguments.property];
+			}
 		} else {
 			local.rv = "";
 		}
